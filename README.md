@@ -10,6 +10,7 @@
 
 <img src="https://komarev.com/ghpvc/?username=BlackF1re&style=flat-square&color=2f81f7&label=profile+views" alt="Profile views" />
 <img src="https://img.shields.io/github/followers/BlackF1re?style=flat-square&color=2f81f7&label=followers" alt="GitHub followers" />
+<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FBlackF1re%2FBlackF1re%2Foutput%2Fstars.json&style=flat-square" alt="Total GitHub stars" />
 
 </div>
 
@@ -101,28 +102,20 @@ If most answers are **yes**, I'm probably already reading the board documentatio
 <br><br>
 
 <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=BlackF1re&theme=react-dark&hide_border=true&area=true&custom_title=Contribution%20activity" />
+  <source media="(prefers-color-scheme: light)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=BlackF1re&theme=github-compact&hide_border=true&area=true&custom_title=Contribution%20activity" />
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=BlackF1re&theme=github-compact&hide_border=true&area=true&custom_title=Contribution%20activity" alt="GitHub contribution activity graph" />
+</picture>
+
+<br><br>
+
+<picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=BlackF1re&theme=dark&hide_border=true" />
   <source media="(prefers-color-scheme: light)" srcset="https://streak-stats.demolab.com?user=BlackF1re&theme=default&hide_border=true" />
   <img src="https://streak-stats.demolab.com?user=BlackF1re&hide_border=true" alt="GitHub contribution streak" />
 </picture>
 
 </div>
-
-<details>
-<summary><b>📈 More activity telemetry</b></summary>
-<br>
-
-<div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=BlackF1re&theme=react-dark&hide_border=true&area=true&custom_title=Contribution%20activity" />
-  <source media="(prefers-color-scheme: light)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=BlackF1re&theme=github-compact&hide_border=true&area=true&custom_title=Contribution%20activity" />
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=BlackF1re&theme=github-compact&hide_border=true&area=true&custom_title=Contribution%20activity" alt="GitHub contribution activity graph" />
-</picture>
-
-</div>
-
-</details>
 
 ## Elsewhere
 
