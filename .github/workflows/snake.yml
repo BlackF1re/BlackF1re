@@ -26,6 +26,33 @@ jobs:
       - name: Check out profile repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Point README at live counters
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("README.md")
+          text = path.read_text(encoding="utf-8")
+          old = "https://img.shields.io/github/followers/BlackF1re?style=flat-square&color=2f81f7&label=followers"
+          new = "https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FBlackF1re%2FBlackF1re%2Foutput%2Ffollowers.json&style=flat-square"
+
+          if old in text:
+              path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+
+          if git diff --quiet -- README.md; then
+            echo "README already uses the live follower counter."
+          else
+            git config user.name "BlackF1re"
+            git config user.email "55582873+BlackF1re@users.noreply.github.com"
+            git add README.md
+            git commit -m "fix: refresh follower counter promptly"
+            git push origin HEAD:main
+          fi
+
       - name: Build live counters
         shell: bash
         env:
