@@ -2,44 +2,31 @@
 
 # BlackF1re
 
-**System and device software for the real world.**
-
-Embedded Linux · OpenWrt · Android · Wear OS · Self-hosted infrastructure
+### Systems · Devices · Open source
 
 <img src="https://komarev.com/ghpvc/?username=BlackF1re&style=flat-square&color=2f81f7&label=profile+views" alt="Profile views" />
 
 </div>
 
-## What I build
+## About me
 
-I turn available hardware, small servers, and mobile devices into focused tools. My work spans low-level Linux bring-up and board-specific hardware support, OpenWrt-based network services, and Android/Wear OS utilities designed around real device constraints.
+I am a developer who enjoys making technology practical: turning hardware, operating systems, and ideas into tools that are clear, dependable, and pleasant to use.
 
-## Areas of focus
+I am drawn to the space where software meets real devices — systems that need to be lightweight, understandable, and built with the constraints of the real world in mind. I care about the whole path from a rough idea to something another person can install, run, and rely on.
 
-| Area | Examples |
-| --- | --- |
-| **Embedded Linux & hardware** | Debian systems for Zynq/FPGA boards, PMIC telemetry and control, GPIO tooling. |
-| **OpenWrt & edge services** | Router-side automation, proxy management, backups, and camera streaming. |
-| **Android & Wear OS** | Local-first battery, sensor, safety, and watch-complication utilities. |
-| **Practical developer tools** | Linux input improvements, visual tooling, desktop apps, and automation. |
+## What matters to me
 
-## Selected work
+- Building useful things instead of adding complexity for its own sake.
+- Understanding how a system works beneath the surface.
+- Creating software that respects the user’s time, privacy, and hardware.
+- Keeping projects open, documented, and ready to evolve.
 
-| Project | What it is |
-| --- | --- |
-| [AtlANTian](https://github.com/BlackF1re/atlantian) | A ready-to-flash Debian GNU/Linux system for Bitmain Antminer S9 control boards, with Zynq-7010, FPGA, NAND, and hardware support. |
-| [CCTV Observer](https://github.com/BlackF1re/CCTV-Observer) | Self-hosted CCTV panel: an OpenWrt router sends video securely to a VPS for WebRTC live viewing and MP4 archival. |
-| [Mission Control](https://github.com/BlackF1re/mission-control) | Release-ready web UI and router-side bridge for nikki/mihomo on OpenWrt. |
-| [DrainGuard](https://github.com/BlackF1re/DrainGuard) | Local-first Android battery-drain monitor with rolling rates, history, alerts, and CSV/PNG export. |
-| [Fall Guard](https://github.com/BlackF1re/fall-guard) | Wear OS fall and watch-loss alarm using device sensors, foreground monitoring, siren, and vibration. |
-| [Watch Metrics](https://github.com/BlackF1re/watchmetrics) | Lightweight Wear OS complication provider for selected device metrics. |
-| [TouchRMB](https://github.com/BlackF1re/TouchRMB) | Long-tap right click for Linux touchscreen tablets on X11, including a low-overhead C daemon and settings UI. |
-| [AXP288 Control Center](https://github.com/BlackF1re/axp288-control-center) | Linux control center for AXP288-powered tablets: battery telemetry, PMIC registers, and kernel settings. |
+## Toolbox
 
-## Stack
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=linux,c,cpp,python,bash,kotlin,java,android,docker,js,git,githubactions&perline=12" alt="Linux, C, C++, Python, Bash, Kotlin, Java, Android, Docker, JavaScript, Git, GitHub Actions" />
+</p>
 
-`Linux` · `Embedded Linux` · `OpenWrt` · `C` · `Shell` · `Python` · `Kotlin` · `Java` · `Android` · `Wear OS` · `Docker` · `JavaScript`
+## Elsewhere
 
-## Contact
-
-[Telegram](https://t.me/paul_official)
+<a href="https://t.me/paul_official"><img src="https://img.shields.io/badge/Telegram-2CA5E0?style=flat-square&logo=telegram&logoColor=white" alt="Telegram" /></a>
