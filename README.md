@@ -9,7 +9,7 @@
 *Machines should work and think; people should enjoy life.*
 
 <img src="https://komarev.com/ghpvc/?username=BlackF1re&style=flat-square&color=2f81f7&label=profile+views" alt="Profile views" />
-<img src="https://img.shields.io/github/followers/BlackF1re?style=flat-square&color=2f81f7&label=followers" alt="GitHub followers" />
+<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FBlackF1re%2FBlackF1re%2Foutput%2Ffollowers.json&style=flat-square" alt="GitHub followers" />
 <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FBlackF1re%2FBlackF1re%2Foutput%2Fstars.json&style=flat-square" alt="Total GitHub stars" />
 
 </div>
