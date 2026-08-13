@@ -44,24 +44,71 @@ jobs:
           from pathlib import Path
           import re
 
+          def rewrite_keyframes(svg, name, freeze_at, hold_until=93.0):
+              marker = f"@keyframes {name}{{"
+              start = svg.find(marker)
+              if start < 0:
+                  return svg
+
+              body_start = start + len(marker)
+              depth = 1
+              pos = body_start
+              while pos < len(svg) and depth:
+                  if svg[pos] == "{":
+                      depth += 1
+                  elif svg[pos] == "}":
+                      depth -= 1
+                  pos += 1
+
+              if depth != 0:
+                  return svg
+
+              body = svg[body_start:pos - 1]
+              points = {}
+              for selectors, x, y in re.findall(
+                  r'([0-9.,%]+)\{transform:translate\(([-0-9.]+)px,([-0-9.]+)px\)\}',
+                  body,
+              ):
+                  for selector in selectors.split(","):
+                      selector = selector.strip().rstrip("%")
+                      if selector:
+                          points[float(selector)] = (x, y)
+
+              usable = sorted(p for p in points if p <= freeze_at)
+              if not usable:
+                  return svg
+
+              final_pct = usable[-1]
+              final_x, final_y = points[final_pct]
+              rebuilt = []
+              for pct in usable:
+                  x, y = points[pct]
+                  rebuilt.append(
+                      f"{pct:g}%{{transform:translate({x}px,{y}px)}}"
+                  )
+
+              if final_pct < freeze_at:
+                  rebuilt.append(
+                      f"{freeze_at:g}%{{transform:translate({final_x}px,{final_y}px)}}"
+                  )
+              rebuilt.append(
+                  f"{hold_until:g}%,100%{{transform:translate({final_x}px,{final_y}px)}}"
+              )
+
+              replacement = marker + "".join(rebuilt) + "}"
+              return svg[:start] + replacement + svg[pos:]
+
           for path in Path("dist").glob("github-contribution-grid-snake*.svg"):
               svg = path.read_text(encoding="utf-8")
 
-              # Keep the technical return path outside the visible canvas.
-              svg = re.sub(
-                  r'viewBox="-16 -32 ([0-9.]+) 192" width="([0-9.]+)" height="192"',
-                  r'viewBox="-16 0 \1 160" width="\2" height="160"',
-                  svg,
-                  count=1,
-              )
+              # Keep the original breathing room around the contribution grid.
+              # The snake is hidden while entering from its technical spawn pose,
+              # rather than clipping the canvas and visually blinking.
 
-              # A three-segment visible snake makes tight turns cleaner and avoids
-              # the tail visually touching the head on narrow return paths.
+              # A three-segment visible snake makes tight turns cleaner and keeps
+              # the head from visually touching the tail on compact manoeuvres.
               svg = re.sub(r'<rect class="s s3"[^>]*/>', '', svg, count=1)
 
-              # snk appends a route back to its initial pose after the last cell.
-              # Fade the snake immediately after the final contribution is eaten,
-              # so only the meaningful route is visible.
               marks = [
                   float(value)
                   for value in re.findall(
@@ -71,23 +118,33 @@ jobs:
               duration = re.search(
                   r'\.s\{[^}]*animation:none linear ([0-9]+)ms infinite', svg
               )
-              snake = re.search(
-                  r'(<rect class="s s0"[^>]*/><rect class="s s1"[^>]*/><rect class="s s2"[^>]*/>)',
-                  svg,
-              )
 
-              if marks and duration and snake:
-                  fade_start = min(max(marks) + 0.15, 98.0) / 100.0
-                  fade_end = min(max(marks) + 0.80, 99.0) / 100.0
-                  group = (
-                      '<g class="visible-snake">'
-                      + snake.group(1)
-                      + '<animate attributeName="opacity" values="1;1;0;0" '
-                      + f'keyTimes="0;{fade_start:.4f};{fade_end:.4f};1" '
-                      + f'dur="{duration.group(1)}ms" repeatCount="indefinite"/>'
-                      + '</g>'
+              if marks and duration:
+                  # snk normally spends the final part of the cycle returning to
+                  # its initial pose. Let the body settle for a few steps after the
+                  # final eaten cell, then hold that pose instead of showing the
+                  # artificial return route along the top edge.
+                  freeze_at = min(max(marks) + 2.2, 88.0)
+                  for name in ("s0", "s1", "s2"):
+                      svg = rewrite_keyframes(svg, name, freeze_at)
+
+                  snake = re.search(
+                      r'(<rect class="s s0"[^>]*/><rect class="s s1"[^>]*/><rect class="s s2"[^>]*/>)',
+                      svg,
                   )
-                  svg = svg[: snake.start()] + group + svg[snake.end() :]
+                  if snake:
+                      group = '<g class="visible-snake">' + snake.group(1) + '</g>'
+                      svg = svg[:snake.start()] + group + svg[snake.end():]
+
+                      visibility = (
+                          '@keyframes snakeVisibility{'
+                          '0%,1.5%{opacity:0}'
+                          '3%,93%{opacity:1}'
+                          '98%,100%{opacity:0}'
+                          '}'
+                          f'.visible-snake{{animation:snakeVisibility {duration.group(1)}ms linear infinite}}'
+                      )
+                      svg = svg.replace('</style>', visibility + '</style>', 1)
 
               path.write_text(svg, encoding="utf-8")
           PY
