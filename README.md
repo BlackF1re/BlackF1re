@@ -15,11 +15,11 @@
 </div>
 
 <p align="center">
-  <a href="#about-me">About</a> ·
-  <a href="#current-rabbit-holes">Rabbit holes</a> ·
-  <a href="#toolbox">Toolbox</a> ·
-  <a href="#github-activity">Activity</a> ·
-  <a href="#elsewhere">Contact</a>
+  <a href="#user-content-about-me">About</a> ·
+  <a href="#user-content-current-rabbit-holes">Rabbit holes</a> ·
+  <a href="#user-content-toolbox">Toolbox</a> ·
+  <a href="#user-content-github-activity">Activity</a> ·
+  <a href="#user-content-elsewhere">Contact</a>
 </p>
 
 ## About me
