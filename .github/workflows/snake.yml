@@ -44,11 +44,11 @@ jobs:
           from pathlib import Path
           import re
 
-          def rewrite_keyframes(svg, name, freeze_at, hold_until=93.0):
+          def keyframe_block(svg, name):
               marker = f"@keyframes {name}{{"
               start = svg.find(marker)
               if start < 0:
-                  return svg
+                  return None
 
               body_start = start + len(marker)
               depth = 1
@@ -61,7 +61,7 @@ jobs:
                   pos += 1
 
               if depth != 0:
-                  return svg
+                  return None
 
               body = svg[body_start:pos - 1]
               points = {}
@@ -74,40 +74,54 @@ jobs:
                       if selector:
                           points[float(selector)] = (float(x), float(y))
 
+              return marker, start, pos, points
+
+          def sample(points, pct):
               ordered = sorted(points)
-              before = [p for p in ordered if p <= freeze_at]
-              after = [p for p in ordered if p >= freeze_at]
+              before = [p for p in ordered if p <= pct]
+              after = [p for p in ordered if p >= pct]
               if not before or not after:
-                  return svg
+                  raise ValueError(f"Cannot sample keyframes at {pct}%")
 
               p0 = before[-1]
               p1 = after[0]
               x0, y0 = points[p0]
               x1, y1 = points[p1]
-
               if abs(p1 - p0) < 1e-9:
-                  frozen_x, frozen_y = x0, y0
-              else:
-                  t = (freeze_at - p0) / (p1 - p0)
-                  frozen_x = x0 + (x1 - x0) * t
-                  frozen_y = y0 + (y1 - y0) * t
+                  return x0, y0
 
-              def n(value):
-                  rounded = round(value, 2)
-                  return f"{rounded:g}"
+              t = (pct - p0) / (p1 - p0)
+              return x0 + (x1 - x0) * t, y0 + (y1 - y0) * t
 
+          def fmt(value):
+              return f"{round(value, 2):g}"
+
+          def rewrite_exit(svg, name, exit_start, turn_at, fade_end, turn_pos, end_pos):
+              parsed = keyframe_block(svg, name)
+              if not parsed:
+                  return svg
+
+              marker, start, pos, points = parsed
+              current = sample(points, exit_start)
               rebuilt = []
-              for pct in ordered:
-                  if pct >= freeze_at:
+
+              for pct in sorted(points):
+                  if pct >= exit_start:
                       break
                   x, y = points[pct]
                   rebuilt.append(
-                      f"{pct:g}%{{transform:translate({n(x)}px,{n(y)}px)}}"
+                      f"{pct:g}%{{transform:translate({fmt(x)}px,{fmt(y)}px)}}"
                   )
 
-              frozen = f"transform:translate({n(frozen_x)}px,{n(frozen_y)}px)"
-              rebuilt.append(f"{freeze_at:g}%{{{frozen}}}")
-              rebuilt.append(f"{hold_until:g}%,100%{{{frozen}}}")
+              rebuilt.append(
+                  f"{exit_start:g}%{{transform:translate({fmt(current[0])}px,{fmt(current[1])}px)}}"
+              )
+              rebuilt.append(
+                  f"{turn_at:g}%{{transform:translate({fmt(turn_pos[0])}px,{fmt(turn_pos[1])}px)}}"
+              )
+              rebuilt.append(
+                  f"{fade_end:g}%,100%{{transform:translate({fmt(end_pos[0])}px,{fmt(end_pos[1])}px)}}"
+              )
 
               replacement = marker + "".join(rebuilt) + "}"
               return svg[:start] + replacement + svg[pos:]
@@ -115,8 +129,16 @@ jobs:
           for path in Path("dist").glob("github-contribution-grid-snake*.svg"):
               svg = path.read_text(encoding="utf-8")
 
-              # Three visible segments make tight turns cleaner and keep the head
-              # from visually touching the tail on compact manoeuvres.
+              # Crop the technical spawn/return lane above the contribution grid.
+              # The next loop therefore enters naturally from outside the viewport.
+              svg = re.sub(
+                  r'viewBox="-16 -32 ([0-9.]+) 192" width="([0-9.]+)" height="192"',
+                  r'viewBox="-16 0 \1 160" width="\2" height="160"',
+                  svg,
+                  count=1,
+              )
+
+              # Three visible segments keep tight turns readable.
               svg = re.sub(r'<rect class="s s3"[^>]*/>', '', svg, count=1)
 
               marks = [
@@ -130,30 +152,59 @@ jobs:
               )
 
               if marks and duration:
-                  # Freeze at the exact pose just after the last contribution is
-                  # eaten. Each body segment is linearly interpolated at that point,
-                  # preserving the snake shape instead of collapsing the segments.
-                  freeze_at = min(max(marks) + 0.04, 88.0)
+                  # The snake stays at full opacity through the last eaten square.
+                  # Immediately afterwards it snaps into a left-facing pose, then
+                  # traverses toward x=0 while fading linearly to full transparency.
+                  exit_start = min(max(marks) + 0.02, 88.0)
+                  turn_at = min(exit_start + 0.45, 89.0)
+                  fade_end = min(exit_start + 9.0, 94.0)
+
+                  poses = {}
                   for name in ("s0", "s1", "s2"):
-                      svg = rewrite_keyframes(svg, name, freeze_at)
+                      parsed = keyframe_block(svg, name)
+                      if parsed:
+                          poses[name] = sample(parsed[3], exit_start)
 
-                  snake = re.search(
-                      r'(<rect class="s s0"[^>]*/><rect class="s s1"[^>]*/><rect class="s s2"[^>]*/>)',
-                      svg,
-                  )
-                  if snake:
-                      group = '<g class="visible-snake">' + snake.group(1) + '</g>'
-                      svg = svg[:snake.start()] + group + svg[snake.end():]
+                  if len(poses) == 3:
+                      head_x, head_y = poses["s0"]
+                      turn_positions = {
+                          "s0": (head_x - 16.0, head_y),
+                          "s1": (head_x, head_y),
+                          "s2": (head_x + 16.0, head_y),
+                      }
+                      end_positions = {
+                          "s0": (0.0, head_y),
+                          "s1": (16.0, head_y),
+                          "s2": (32.0, head_y),
+                      }
 
-                      visibility = (
-                          '@keyframes snakeVisibility{'
-                          '0%,1.5%{opacity:0}'
-                          '3%,93%{opacity:1}'
-                          '98%,100%{opacity:0}'
-                          '}'
-                          f'.visible-snake{{animation:snakeVisibility {duration.group(1)}ms linear infinite}}'
+                      for name in ("s0", "s1", "s2"):
+                          svg = rewrite_exit(
+                              svg,
+                              name,
+                              exit_start,
+                              turn_at,
+                              fade_end,
+                              turn_positions[name],
+                              end_positions[name],
+                          )
+
+                      snake = re.search(
+                          r'(<rect class="s s0"[^>]*/><rect class="s s1"[^>]*/><rect class="s s2"[^>]*/>)',
+                          svg,
                       )
-                      svg = svg.replace('</style>', visibility + '</style>', 1)
+                      if snake:
+                          group = '<g class="visible-snake">' + snake.group(1) + '</g>'
+                          svg = svg[:snake.start()] + group + svg[snake.end():]
+
+                          visibility = (
+                              '@keyframes snakeVisibility{'
+                              f'0%,{exit_start:g}%{{opacity:1}}'
+                              f'{fade_end:g}%,100%{{opacity:0}}'
+                              '}'
+                              f'.visible-snake{{animation:snakeVisibility {duration.group(1)}ms linear infinite}}'
+                          )
+                          svg = svg.replace('</style>', visibility + '</style>', 1)
 
               path.write_text(svg, encoding="utf-8")
           PY
